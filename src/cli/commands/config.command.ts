@@ -37,8 +37,9 @@ export function configCommand(): Command {
     .command('get <key>')
     .description('Show the effective value of a configuration key')
     .action(async (key: string) => {
+      const location = await createRepository().detect(process.cwd());
       const useCase = new ManageConfigUseCase(createConfigService());
-      const result = await useCase.get(key);
+      const result = await useCase.get(key, location?.rootPath);
       console.log(`${result.key} = ${formatValue(result.value)} (${result.source})`);
     });
 

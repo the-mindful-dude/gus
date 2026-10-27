@@ -1,5 +1,6 @@
-import { mkdir, writeFile } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { mkdir, rename, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { dirname, join } from 'node:path';
 import type { ConfigurationService } from '../../application/ports/configuration.port.js';
 import {
   CONFIG_KEY_LIST,
@@ -86,7 +87,9 @@ export class ConfigService implements ConfigurationService {
     }
 
     await mkdir(dirname(path), { recursive: true });
-    await writeFile(path, `${JSON.stringify(result.data, null, 2)}\n`, 'utf-8');
+    const tempPath = join(dirname(path), `.config.json.tmp.${randomUUID()}`);
+    await writeFile(tempPath, `${JSON.stringify(result.data, null, 2)}\n`, 'utf-8');
+    await rename(tempPath, path);
 
     return result.data;
   }

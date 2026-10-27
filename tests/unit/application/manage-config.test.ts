@@ -42,6 +42,20 @@ describe('ManageConfigUseCase', () => {
     );
   });
 
+  it('returns project configuration overriding global configuration', async () => {
+    const configService = new ConfigService({ globalDir });
+    const caseWithService = new ManageConfigUseCase(configService);
+    await configService.write('global', { ai: { model: 'gpt-4o' } });
+    const { mkdir, writeFile } = await import('node:fs/promises');
+    const { join } = await import('node:path');
+    await mkdir(join(repoRoot, '.gus'), { recursive: true });
+    await writeFile(join(repoRoot, '.gus', 'config.json'), JSON.stringify({ ai: { model: 'gpt-4o-mini' } }), 'utf-8');
+
+    const result = await caseWithService.get('ai.model', repoRoot);
+    expect(result.value).toBe('gpt-4o-mini');
+    expect(result.source).toBe('project');
+  });
+
   it('coerces numbers, booleans, and enums when setting', async () => {
     const temperature = await useCase.set('ai.temperature', '0.5', { scope: 'project', repoRoot });
     const color = await useCase.set('ui.color', 'never', { scope: 'project', repoRoot });
