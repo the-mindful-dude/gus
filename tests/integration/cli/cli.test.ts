@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execa } from 'execa';
@@ -81,6 +81,15 @@ describe('CLI', () => {
     expect(result.stdout).toContain('Model: gpt-4o-mini (default)');
   });
 
+  it('shows project model overriding global in a repository', async () => {
+    await runCli(['config', 'set', 'ai.model', 'gpt-4o', '--global']);
+    await runCli(['config', 'set', 'ai.model', 'gpt-4o-mini']);
+    const result = await runCli(['models']);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('Model: gpt-4o-mini (project)');
+  });
+
   it('gets and sets global configuration', async () => {
     const set = await runCli(['config', 'set', 'ai.model', 'gpt-4o', '--global']);
     const get = await runCli(['config', 'get', 'ai.model']);
@@ -98,6 +107,15 @@ describe('CLI', () => {
 
     expect(result.exitCode).toBe(0);
     expect(JSON.parse(stored).workflow.autoCommit).toBe('allow');
+  });
+
+  it('gets configuration with project overriding global in a repository', async () => {
+    await runCli(['config', 'set', 'ai.model', 'gpt-4o', '--global']);
+    await runCli(['config', 'set', 'ai.model', 'gpt-4o-mini']);
+    const result = await runCli(['config', 'get', 'ai.model']);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain('ai.model = gpt-4o-mini (project)');
   });
 
   it('rejects invalid configuration values', async () => {
@@ -137,8 +155,20 @@ describe('CLI', () => {
     expect(second.stdout).toContain('Kept existing');
     expect(instructions).toBe('custom instructions');
     await expect(readFile(join(repoDir, '.gus', 'TEMPLATE.md'), 'utf-8')).resolves.toContain(
-      'commit-template',
+      '{{type}}{{scope_suffix}}: {{summary}}',
     );
+  });
+
+  it('rejects an invalid commit template before planning', async () => {
+    await writeFile(join(repoDir, 'changed.txt'), 'hello', 'utf-8');
+    await mkdir(join(repoDir, '.gus'), { recursive: true });
+    await writeFile(join(repoDir, '.gus', 'TEMPLATE.md'), '# Template\n\nNo block.\n', 'utf-8');
+
+    const result = await runCli(['run']);
+
+    expect(result.exitCode).toBe(2);
+    expect(result.stderr).toContain('Invalid commit template');
+    expect(result.stderr).toContain('commit-template');
   });
 
   it('short-circuits the workflow when there are no changes', async () => {

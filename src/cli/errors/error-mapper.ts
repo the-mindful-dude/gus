@@ -34,6 +34,15 @@ const ERROR_RULES: ErrorRule[] = [
     nextSteps: ["Check the 'ai' and 'workflow' sections of your configuration file."],
   },
   {
+    names: ['InvalidTemplateError'],
+    exitCode: ExitCode.InvalidInput,
+    title: 'Invalid commit template',
+    nextSteps: [
+      "Fix the commit template file, usually '.gus/TEMPLATE.md', using the documented {{name}} placeholders.",
+      'The repository was not modified.',
+    ],
+  },
+  {
     names: ['InvalidBranchNameError'],
     exitCode: ExitCode.InvalidInput,
     title: 'Invalid branch name',

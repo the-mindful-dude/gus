@@ -8,6 +8,7 @@ import {
   InvalidAiResponseError,
   InvalidArgumentsError,
   InvalidConfigurationError,
+  InvalidTemplateError,
   NoRepositoryError,
   OperationFailedError,
   PlanValidationError,
@@ -20,6 +21,7 @@ describe('error mapper', () => {
   it.each([
     [new InvalidArgumentsError('bad args'), ExitCode.InvalidInput],
     [new InvalidConfigurationError('bad config'), ExitCode.InvalidInput],
+    [new InvalidTemplateError('bad template'), ExitCode.InvalidInput],
     [new NoRepositoryError('no repo'), ExitCode.RepositoryError],
     [new UnsafeRepositoryStateError('unsafe'), ExitCode.RepositoryError],
     [new AiAuthenticationError('no key'), ExitCode.AiError],

@@ -40,6 +40,13 @@ export class InvalidConfigurationError extends DomainError {
   }
 }
 
+export class InvalidTemplateError extends DomainError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'InvalidTemplateError';
+  }
+}
+
 export class UnsupportedRepositoryError extends RepositoryError {
   constructor(message: string) {
     super(message);

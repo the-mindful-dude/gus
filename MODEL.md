@@ -931,6 +931,8 @@ Support a small, documented set of placeholders:
 | `{{body}}`         | Optional explanatory text                                      |
 | `{{footer}}`       | Optional footer, issue reference, or other configured metadata |
 
+Only the placeholders in the table above are supported. Templates that use another placeholder syntax, such as `<type>`, or that omit the required `{{summary}}` placeholder are rejected with an actionable error.
+
 The template renderer must define how empty optional fields are handled and remove unintended empty lines without altering the required message structure.
 
 Do not implement a general-purpose template language. A small explicit placeholder system is sufficient.

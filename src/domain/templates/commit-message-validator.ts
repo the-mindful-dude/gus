@@ -1,6 +1,6 @@
 import type { CommitTemplate } from './commit-template.js';
 
-const PLACEHOLDER_PATTERN = /<[^<>]+>|\{\{[^{}]+\}\}/g;
+const PLACEHOLDER_PATTERN = /\{\{([a-z][a-z0-9_]*)\}\}/g;
 const SUBJECT_LIMIT_PATTERN = /(\d+)\s*(?:characters?|chars?)/i;
 
 function escapeRegex(value: string): string {
@@ -18,19 +18,35 @@ function firstMeaningfulLine(templateBlock: string): string | null {
   return null;
 }
 
+function placeholderPattern(name: string): string {
+  return name === 'scope_suffix' ? '(?:\\([^)]*\\))?' : '.+?';
+}
+
 export function templateSubjectPattern(templateBlock: string): RegExp | null {
   const line = firstMeaningfulLine(templateBlock);
   if (line === null) {
     return null;
   }
 
-  const placeholders = line.match(PLACEHOLDER_PATTERN);
-  if (placeholders === null) {
+  const placeholderRegex = new RegExp(PLACEHOLDER_PATTERN.source, 'g');
+  let pattern = '';
+  let lastIndex = 0;
+  let found = false;
+  let match: RegExpExecArray | null = placeholderRegex.exec(line);
+  while (match !== null) {
+    found = true;
+    pattern += escapeRegex(line.slice(lastIndex, match.index));
+    pattern += placeholderPattern(match[1]);
+    lastIndex = match.index + match[0].length;
+    match = placeholderRegex.exec(line);
+  }
+
+  if (!found) {
     return null;
   }
 
-  const segments = line.split(PLACEHOLDER_PATTERN).map(escapeRegex);
-  return new RegExp(`^${segments.join('.+')}$`);
+  pattern += escapeRegex(line.slice(lastIndex));
+  return new RegExp(`^${pattern}$`);
 }
 
 export function templateSubjectLimit(template: CommitTemplate): number | null {

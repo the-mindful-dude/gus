@@ -91,9 +91,9 @@ describe('WorkflowValidator', () => {
   describe('commit template validation', () => {
     const template: CommitTemplate = {
       raw: '',
-      templateBlock: '<type>(<scope>): <summary>',
+      templateBlock: '{{type}}{{scope_suffix}}: {{summary}}',
       rules: ['- Keep the summary at or below 72 characters.'],
-      placeholders: ['type', 'scope', 'summary'],
+      placeholders: ['type', 'scope_suffix', 'summary'],
     };
 
     it('accepts messages that follow the template', () => {
@@ -115,7 +115,7 @@ describe('WorkflowValidator', () => {
 
       expect(result.valid).toBe(false);
       expect(result.errors).toContain(
-        'Commit subject "update everything" does not match the template "<type>(<scope>): <summary>".',
+        'Commit subject "update everything" does not match the template "{{type}}{{scope_suffix}}: {{summary}}".',
       );
     });
 

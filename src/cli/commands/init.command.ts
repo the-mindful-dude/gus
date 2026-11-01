@@ -16,11 +16,11 @@ const INSTRUCTIONS = `# Gus Instructions
 const TEMPLATE = `# Commit Template
 
 \`\`\`commit-template
-<type>(<scope>): <summary>
+{{type}}{{scope_suffix}}: {{summary}}
 
-<body>
+{{body}}
 
-<footer>
+{{footer}}
 \`\`\`
 
 ## Rules
