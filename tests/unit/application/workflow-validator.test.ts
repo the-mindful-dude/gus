@@ -131,5 +131,13 @@ describe('WorkflowValidator', () => {
       expect(result.valid).toBe(false);
       expect(result.errors.some((error) => error.includes('the template allows 72'))).toBe(true);
     });
+
+    it('rejects empty commit groups', () => {
+      const result = validator.validate(plan({ commits: [] }), snapshot(['a.ts', 'b.ts']));
+
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContain('Change not assigned to any commit: a.ts');
+      expect(result.errors).toContain('Change not assigned to any commit: b.ts');
+    });
   });
 });
