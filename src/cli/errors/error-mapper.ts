@@ -103,7 +103,7 @@ const ERROR_RULES: ErrorRule[] = [
   },
   {
     names: ['PlanValidationError'],
-    exitCode: ExitCode.AiError,
+    exitCode: ExitCode.WorkflowFailed,
     title: 'Plan validation failed',
     nextSteps: ['Review the reported validation errors and try again.'],
   },

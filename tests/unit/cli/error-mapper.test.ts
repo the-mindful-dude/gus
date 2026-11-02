@@ -44,7 +44,7 @@ describe('error mapper', () => {
       new PlanValidationError('invalid plan', ['missing branch name', 'unknown path']),
     );
 
-    expect(presentation.exitCode).toBe(ExitCode.AiError);
+    expect(presentation.exitCode).toBe(ExitCode.WorkflowFailed);
     expect(presentation.title).toBe('Plan validation failed');
     expect(presentation.nextSteps).toContain('missing branch name');
     expect(presentation.nextSteps).toContain('unknown path');
