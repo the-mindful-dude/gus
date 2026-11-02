@@ -49,7 +49,11 @@ describe('ManageConfigUseCase', () => {
     const { mkdir, writeFile } = await import('node:fs/promises');
     const { join } = await import('node:path');
     await mkdir(join(repoRoot, '.gus'), { recursive: true });
-    await writeFile(join(repoRoot, '.gus', 'config.json'), JSON.stringify({ ai: { model: 'gpt-4o-mini' } }), 'utf-8');
+    await writeFile(
+      join(repoRoot, '.gus', 'config.json'),
+      JSON.stringify({ ai: { model: 'gpt-4o-mini' } }),
+      'utf-8',
+    );
 
     const result = await caseWithService.get('ai.model', repoRoot);
     expect(result.value).toBe('gpt-4o-mini');
