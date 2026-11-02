@@ -16,10 +16,16 @@ import type { WorkflowPlan } from '../../domain/workflow/workflow-plan.js';
 import type { ApprovalPort, ApprovalRequest } from '../ports/approval.port.js';
 import type { ProgressReporter } from '../ports/progress.port.js';
 import type { RepositoryAdapter } from '../ports/repository.port.js';
+import type {
+  StatePersistence,
+  WorkflowExecutionState,
+} from '../../infrastructure/persistence/workflow-state.js';
 
 export interface ExecuteWorkflowOptions {
   approval: ApprovalPort;
   progress: ProgressReporter;
+  statePersistence?: StatePersistence;
+  rootPath: string;
 }
 
 type Resolution = { action: 'execute' } | { action: 'skip'; reason: string; declined?: boolean };
@@ -50,6 +56,17 @@ export class WorkflowExecutor {
     const needsBranch = plan.branch.strategy === 'new' && plan.branch.name !== undefined;
     const totalFiles = plan.commits.reduce((count, commit) => count + commit.files.length, 0);
 
+    // Load execution state for resume support
+    let state: { branchCreated: boolean; commitsCompleted: number };
+    if (options.statePersistence) {
+const loaded = await options.statePersistence.loadState(
+      options.rootPath,
+    );
+      state = loaded !== null ? loaded : { branchCreated: false, commitsCompleted: 0 };
+    } else {
+      state = { branchCreated: false, commitsCompleted: 0 };
+    }
+
     const branchResolution: Resolution = needsBranch
       ? await this.resolve(
           'createBranch',
@@ -61,6 +78,7 @@ export class WorkflowExecutor {
             details: [plan.branch.reason],
           },
           options,
+          state,
         )
       : { action: 'skip', reason: 'The plan keeps the current branch.' };
 
@@ -70,6 +88,14 @@ export class WorkflowExecutor {
         'createBranch',
         `Skipped branch "${plan.branch.name}".`,
         'Branch creation was declined.',
+      );
+    }
+
+    // After branch creation, save state if branch was created
+    if (needsBranch && branchResolution.action === 'execute') {
+      await options.statePersistence!.saveState(
+        { branchCreated: true, commitsCompleted: state.commitsCompleted },
+        options.rootPath,
       );
     }
 
@@ -84,6 +110,7 @@ export class WorkflowExecutor {
           details: plan.commits.map((commit, index) => `${index + 1}. ${commit.message}`),
         },
         options,
+        state,
       );
 
       if (splitResolution.action === 'skip' && splitResolution.declined === true) {
@@ -106,6 +133,7 @@ export class WorkflowExecutor {
         details: plan.commits.map((commit, index) => `${index + 1}. ${commit.message}`),
       },
       options,
+      state,
     );
 
     if (stageResolution.action === 'skip' && stageResolution.declined === true) {
@@ -122,6 +150,7 @@ export class WorkflowExecutor {
         details: plan.commits.map((commit, index) => `${index + 1}. ${commit.message}`),
       },
       options,
+      state,
     );
 
     if (commitResolution.action === 'skip' && commitResolution.declined === true) {
@@ -147,7 +176,11 @@ export class WorkflowExecutor {
       }
     }
 
-    for (const [index, commit] of plan.commits.entries()) {
+    // Start from the next uncommitted commit index
+    const startIndex = state.commitsCompleted;
+    for (let index = startIndex; index < plan.commits.length; index++) {
+      const commit = plan.commits[index];
+
       try {
         await this.repository.stagePaths(commit.files);
         operations.push({
@@ -177,6 +210,17 @@ export class WorkflowExecutor {
           outcome: 'executed',
           description: `Committed ${result.sha.slice(0, 7)}: ${commit.message}`,
         });
+
+        // Save state after each successful commit
+        if (options.statePersistence) {
+          await options.statePersistence.saveState(
+            {
+              branchCreated: state.branchCreated,
+              commitsCompleted: index + 1,
+            },
+            options.rootPath,
+          );
+        }
       } catch (error) {
         return this.fail(operations, 'commit', `Could not commit "${commit.message}".`, error);
       }
@@ -190,6 +234,7 @@ export class WorkflowExecutor {
     decision: PolicyDecision,
     request: ApprovalRequest,
     options: ExecuteWorkflowOptions,
+    state: { branchCreated: boolean; commitsCompleted: number },
   ): Promise<Resolution> {
     if (decision === 'deny') {
       throw new PolicyDeniedError(

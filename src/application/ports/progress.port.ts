@@ -8,6 +8,7 @@ export type WorkflowProgressEvent =
   | { type: 'instructions.loading' }
   | { type: 'template.loading' }
   | { type: 'ai.planning' }
+  | { type: 'plan.loading' }
   | { type: 'plan.validating' }
   | { type: 'approval.required'; operation: ApprovalOperation }
   | { type: 'branch.creating'; name: string }
