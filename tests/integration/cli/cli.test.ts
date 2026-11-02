@@ -183,7 +183,7 @@ describe('CLI', () => {
     const result = await runCli(['run', '--dry-run']);
 
     expect(result.exitCode).toBe(4);
-    expect(result.stderr).toContain('AI authentication failed');
-    expect(result.stderr).toContain('OPENAI_API_KEY');
+    expect(result.stderr).toContain('AI provider failed');
+    expect(result.stderr).toContain('OpenAI API key is missing');
   });
 });
