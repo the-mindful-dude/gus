@@ -226,7 +226,7 @@ const loaded = await options.statePersistence.loadState(
       }
     }
 
-    return { operations, success: true };
+    return await this.verifyFinalState(plan, options);
   }
 
   private async resolve(
@@ -281,5 +281,38 @@ const loaded = await options.statePersistence.loadState(
     const message = error instanceof Error ? error.message : String(error);
     operations.push({ operation, outcome: 'failed', description, reason: message });
     return { operations, success: false, failure: description };
+  }
+
+  private async verifyFinalState(
+    plan: WorkflowPlan,
+    options: ExecuteWorkflowOptions,
+  ): Promise<WorkflowDecision> {
+    const { rootPath } = options;
+    const repository = this.repository;
+
+    // Verify the expected branch is active
+    let currentBranch: string | null = null;
+    try {
+      const branchResult = await repository.inspect();
+      currentBranch = branchResult.currentBranch;
+    } catch {
+      // Cannot inspect; proceed with warning
+    }
+
+    if (plan.branch.strategy === 'new' && plan.branch.name !== undefined) {
+      if (currentBranch !== plan.branch.name) {
+        return this.fail(
+          [],
+          'verify',
+          `Expected branch "${plan.branch.name}" to be active, but current branch is "${currentBranch}".`,
+        );
+      }
+    }
+
+    // At this point, all planned operations (branch creation, staging, commits)
+    // have been executed. The working tree state reflects the result.
+    // TODO: Add more verification - check commit messages, file contents, etc.
+
+    return { operations: [], success: true };
   }
 }

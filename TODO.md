@@ -25,7 +25,7 @@ reflect the total number of items per phase.
 | 7. Testing and Verification | Not started | 0 / 40 | 7.1 (8), 7.2 (8), 7.3 (9), 7.4 (7), 7.5 (8) |
 | 8. CI, Documentation, and Release Preparation | Not started | 0 / 19 | 8.1 (5), 8.2 (7), 8.3 (7) |
 | 9. Deferred Work | Deferred | 0 / 7 | Intentionally out of scope until the workflow is reliable |
-| **Total** | | **36 / 233** | |
+| **Total** | | **63 / 233** | |
 
 ## Phase 1: Repository State and Change Analysis
 
