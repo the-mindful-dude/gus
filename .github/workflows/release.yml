@@ -36,9 +36,9 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.NPM_TOKEN }}
-          files: dist/**
+          file_assets: dist/**
           tag_name: ${{ github.ref_name }}
-        # This workflow builds and releases the Gus CLI tool on tag pushes.
-        # It does not publish to npm; only builds the distribution and creates
-        # a GitHub release with the dist/ files as assets.
+          # GITHUB_TOKEN is used for release creation; no secret setup required.
+          # This workflow builds and releases the Gus CLI tool on tag pushes.
+          # It does not publish to npm; only builds the distribution and creates
+          # a GitHub release with the dist/ files as assets.
