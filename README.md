@@ -10,7 +10,7 @@ Gus is not a coding agent. It manages repository workflows and never lets the AI
 
 - Node.js 20 or newer
 - Git
-- An OpenAI API key in `OPENAI_API_KEY` for AI planning
+- An API key for AI planning (e.g., `GOOGLE_API_KEY` for Google Gemini)
 
 ## Install
 
@@ -33,7 +33,7 @@ gus --dry-run
 gus --yes
 
 # Override the provider or model for one run
-gus --provider openai --model gpt-4o
+gus --provider google --model gemini-1.5-flash
 
 # Inspect repository state
 gus status
@@ -67,8 +67,8 @@ Supported keys:
 
 | Key | Values | Default |
 | --- | --- | --- |
-| `ai.provider` | provider name | `openai` |
-| `ai.model` | model identifier | `gpt-4o-mini` |
+| `ai.provider` | provider name | `google` |
+| `ai.model` | model identifier | `gemini-1.5-flash` |
 | `ai.temperature` | number from 0 to 2 | unset |
 | `workflow.autoCommit` | `allow`, `ask`, `deny` | `ask` |
 | `workflow.autoCreateBranch` | `allow`, `ask`, `deny` | `ask` |
@@ -88,6 +88,18 @@ Policy values:
 - `allow`: perform the operation without prompting.
 - `ask`: request approval before performing the operation.
 - `deny`: do not perform the operation.
+
+## Google Gemini Provider Setup
+
+Gus defaults to the Google Gemini provider. To use Google Gemini, set the `GOOGLE_API_KEY` environment variable with your Google AI API key:
+
+```bash
+export GOOGLE_API_KEY=your-google-api-key
+```
+
+You can obtain an API key from [Google AI Studio](https://makersuite.google.com/app/apikey).
+
+The key is read from the environment variable at runtime and used for AI planning. If `GOOGLE_API_KEY` is not set and no other provider is configured, Gus will fail with an authentication error.
 
 ## Instructions and templates
 

@@ -94,7 +94,7 @@ export interface ResolvedConfiguration {
 }
 
 export const DEFAULT_CONFIGURATION: Configuration = {
-  ai: { provider: 'openai', model: 'gpt-4o-mini' },
+  ai: { provider: 'google', model: 'gemini-1.5-flash' },
   workflow: {
     autoCommit: 'ask',
     autoCreateBranch: 'ask',

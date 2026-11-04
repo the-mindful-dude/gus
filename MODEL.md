@@ -293,7 +293,7 @@ Use the [Vercel AI SDK](https://ai-sdk.dev/?utm_source=chatgpt.com) through the 
 
 The AI subsystem must provide a consistent interface for model calls and structured results. Provider-specific code must remain inside the AI infrastructure layer.
 
-Start with one provider integration, such as `@ai-sdk/openai`. Support additional providers through explicit adapters or the SDK's unified model interface when needed.
+Start with one provider integration, such as `@ai-sdk/google`. Support additional providers through explicit adapters or the SDK's unified model interface when needed.
 
 Use schema-constrained structured output, validated with Zod, for workflow plans. Follow the installed stable version of the SDK rather than relying on outdated examples or experimental APIs without justification.
 
@@ -351,7 +351,7 @@ Runtime dependencies:
 
 ```
 ai
-@ai-sdk/openai
+@ai-sdk/google
 commander
 @clack/prompts
 execa
@@ -753,7 +753,7 @@ A configuration file may look like this:
 ```
 {
   "ai": {
-    "provider": "openai",
+    "provider": "google",
     "model": "your-provider-model-id",
     "temperature": 0.1
   },
@@ -988,8 +988,8 @@ Provide a small interface for inspecting and configuring model settings, for exa
 gus models
 gus config get ai.provider
 gus config get ai.model
-gus config set ai.provider openai
-gus config set ai.model <model-id>
+gus config set ai.provider google
+gus config set ai.model gemini-1.5-flash
 ```
 
 Use the actual supported provider names and model identifiers in implementation and documentation.

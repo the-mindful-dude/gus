@@ -1,5 +1,6 @@
 import type { ConfigurationPatch } from '../domain/config/configuration.js';
 import { AiProviderRegistry } from '../infrastructure/ai/ai-provider-registry.js';
+import { GoogleProvider } from '../infrastructure/ai/ai-provider.google.js';
 import { OpenAiProvider } from '../infrastructure/ai/ai-provider.openai.js';
 import { ModelResolver } from '../infrastructure/ai/model-resolver.js';
 import { ConfigService } from '../infrastructure/config/config-service.js';
@@ -27,6 +28,7 @@ export function createTemplateLoader(): TemplateLoader {
 export function createProviderRegistry(): AiProviderRegistry {
   const registry = new AiProviderRegistry();
   registry.register(new OpenAiProvider());
+  registry.register(new GoogleProvider());
   return registry;
 }
 
