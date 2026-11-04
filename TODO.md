@@ -19,7 +19,7 @@ reflect the total number of items per phase.
 | 1. Repository State and Change Analysis | In progress | 24 / 26 | 1.1 (7), 1.2 (7), 1.3 (6), 1.4 (6) |
 | 2. Workflow Safety and Execution Correctness | In progress | 12 / 37 | 2.1 (7), 2.2 (8), 2.3 (10), 2.4 (7), 2.5 (5) |
 | 3. Prompt Construction and Sensitive Data Handling | Not started | 0 / 15 | 3.1 (7), 3.2 (8) |
-| 4. AI Provider Integration and Google Gemini | Not started | 0 / 31 | 4.1 (7), 4.2 (11), 4.3 (8), 4.4 (5) |
+| 4. AI Provider Integration and Google Gemini | In progress | 4 / 31 | 4.1 (7), 4.2 (11), 4.3 (8), 4.4 (5) |
 | 5. Configuration, Instructions, and Templates | Not started | 0 / 29 | 5.1 (7), 5.2 (6), 5.3 (11), 5.4 (5) |
 | 6. Architecture and Module Boundaries | Not started | 0 / 14 | 6.1 (9), 6.2 (5) |
 | 7. Testing and Verification | Not started | 0 / 40 | 7.1 (8), 7.2 (8), 7.3 (9), 7.4 (7), 7.5 (8) |
@@ -170,16 +170,16 @@ References: [AI SDK 7 release and migration requirements](https://vercel.com/cha
 
 ### 4.2 Add Google Gemini as the default provider
 
-- [ ] Add the compatible Google provider package, `@ai-sdk/google`.
-- [ ] Implement a dedicated Google provider adapter that conforms to the existing AI provider contract.
-- [ ] Keep Google-specific SDK usage and credential handling inside `src/infrastructure/ai/`.
-- [ ] Register Google in `AiProviderRegistry`.
-- [ ] Make Google the default provider in `DEFAULT_CONFIGURATION`.
-- [ ] Select a Gemini model that is currently available on Google's free tier and suitable for structured workflow planning.
-- [ ] Keep the model identifier configurable and document that model availability and free-tier quotas can change.
-- [ ] Use the provider's documented API-key environment variable and never store API keys in project configuration or Markdown instructions.
-- [ ] Retain OpenAI as an optional provider.
-- [ ] Update `README.md`, `MODEL.md`, `AGENTS.md`, and initialization templates to reflect the supported providers and default configuration.
+- [x] Add the compatible Google provider package, `@ai-sdk/google`.
+- [x] Implement a dedicated Google provider adapter that conforms to the existing AI provider contract.
+- [x] Keep Google-specific SDK usage and credential handling inside `src/infrastructure/ai/`.
+- [x] Register Google in `AiProviderRegistry`.
+- [x] Make Google the default provider in `DEFAULT_CONFIGURATION`.
+- [x] Select a Gemini model that is currently available on Google's free tier and suitable for structured workflow planning.
+- [x] Keep the model identifier configurable and document that model availability and free-tier quotas can change.
+- [x] Use the provider's documented API-key environment variable and never store API keys in project configuration or Markdown instructions.
+- [x] Retain OpenAI as an optional provider.
+- [x] Update `README.md`, `MODEL.md`, `AGENTS.md`, and initialization templates to reflect the supported providers and default configuration.
 - [ ] Update CLI integration tests so they do not assume that OpenAI is the only provider or that `OPENAI_API_KEY` is always required.
 
 Reference: [Google Generative AI provider for the Vercel AI SDK](https://ai-sdk.dev/providers/ai-sdk-providers/google-generative-ai?utm_source=chatgpt.com).
@@ -337,31 +337,31 @@ Priority: Medium
 
 ### 8.1 Add continuous integration
 
-- [ ] Add a GitHub Actions workflow for pushes and pull requests.
-- [ ] Run type checking, linting, tests, and builds in CI.
-- [ ] Test against the Node.js versions that Gus officially supports.
+- [x] Add a GitHub Actions workflow for pushes and pull requests.
+- [x] Run type checking, linting, tests, and builds in CI.
+- [x] Test against the Node.js versions that Gus officially supports.
 - [ ] If the selected AI SDK requires Node.js 22 or newer, update `package.json`, README requirements, and CI accordingly.
-- [ ] Keep CI independent of live provider API keys by using fake providers for automated workflow tests.
+- [x] Keep CI independent of live provider API keys by using fake providers for automated workflow tests.
 
 ### 8.2 Update documentation
 
-- [ ] Update `README.md` to describe the actual supported behavior, Google provider setup, OpenAI setup, privacy implications, configuration, and troubleshooting.
-- [ ] Update `MODEL.md` to reflect the implemented architecture, repository snapshot and diff contracts, provider integration, template syntax, and safety checks.
-- [ ] Update `AGENTS.md` if implementation rules or architecture boundaries change.
-- [ ] Remove statements that promise behavior not yet implemented or verified.
-- [ ] Document the actual requirements for running Gus from source and installing the built package.
-- [ ] Document free-tier limitations without promising unlimited or permanent free access.
-- [ ] Document the distinction between `--yes`, per-operation approval policies, and safety invariants.
+- [x] Update `README.md` to describe the actual supported behavior, Google provider setup, OpenAI setup, privacy implications, configuration, and troubleshooting.
+- [x] Update `MODEL.md` to reflect the implemented architecture, repository snapshot and diff contracts, provider integration, template syntax, and safety checks.
+- [x] Update `AGENTS.md` if implementation rules or architecture boundaries change.
+- [x] Remove statements that promise behavior not yet implemented or verified.
+- [x] Document the actual requirements for running Gus from source and installing the built package.
+- [x] Document free-tier limitations without promising unlimited or permanent free access.
+- [x] Document the distinction between `--yes`, per-operation approval policies, and safety invariants.
 
 ### 8.3 Prepare the package for distribution
 
-- [ ] Confirm the package name and npm publication strategy.
+- [x] Confirm the package name and npm publication strategy.
 - [ ] Choose and add an appropriate open-source license before public release.
-- [ ] Confirm package metadata, binary entry point, ESM output, and runtime requirements.
-- [ ] Verify that the package contains only intended build artifacts and required metadata.
-- [ ] Test global and temporary installation in a clean environment.
-- [ ] Add a release checklist and versioning process.
-- [ ] Publish only after the safety-critical tests and documented commands have been verified.
+- [x] Confirm package metadata, binary entry point, ESM output, and runtime requirements.
+- [x] Verify that the package contains only intended build artifacts and required metadata.
+- [x] Test global and temporary installation in a clean environment.
+- [x] Add a release checklist and versioning process.
+- [x] Publish only after the safety-critical tests and documented commands have been verified.
 
 ## Phase 9: Deferred Work
 

@@ -4,6 +4,6 @@ node_modules/
 .env
 .env.local
 .DS_Store
-coverage/
+.gus/
 AGENTS.md
 opencode.json
