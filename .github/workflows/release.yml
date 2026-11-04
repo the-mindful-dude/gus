@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: write
 
     steps:
       - name: Checkout code
@@ -33,12 +34,15 @@ jobs:
       - name: Run tests
         run: npm run test:run
 
+      - name: Publish to npm registry
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           file_assets: dist/**
           tag_name: ${{ github.ref_name }}
-          # GITHUB_TOKEN is used for release creation; no secret setup required.
-          # This workflow builds and releases the Gus CLI tool on tag pushes.
-          # It does not publish to npm; only builds the distribution and creates
-          # a GitHub release with the dist/ files as assets.
+          # NPM_TOKEN secret is required in GitHub repository settings for npm publication.
+          # The workflow builds, publishes to npm, and creates a GitHub release with dist assets.
