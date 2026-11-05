@@ -225,7 +225,13 @@ export class WorkflowExecutor {
       }
     }
 
-    return await this.verifyFinalState(plan, options);
+    const finalDecision = await this.verifyFinalState(plan, options);
+    // Merge operations from execution with final decision verification
+    return {
+      operations: [...operations, ...(finalDecision.operations || [])],
+      success: finalDecision.success,
+      failure: finalDecision.failure,
+    };
   }
 
   private async resolve(

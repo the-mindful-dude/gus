@@ -26,6 +26,7 @@ class FakeRepository implements RepositoryAdapter {
   staged: string[][] = [];
   commits: string[] = [];
   failCommitMessage?: string;
+  currentBranch = 'main';
 
   async detect(_cwd: string): Promise<RepositoryLocation | null> {
     return null;
@@ -42,7 +43,17 @@ class FakeRepository implements RepositoryAdapter {
   }
 
   async inspect(): Promise<RepositorySnapshot> {
-    throw new Error('not used');
+    return {
+      rootPath: '/repo',
+      displayName: 'repo',
+      currentBranch: this.currentBranch,
+      isDetached: false,
+      isOperationInProgress: false,
+      changes: [],
+      headSha: 'head-1',
+      indexFingerprint: 'index-1',
+      worktreeFingerprint: 'worktree-1',
+    };
   }
 
   async getChangeContents(changes: RepositoryChange[]): Promise<ChangeContent[]> {
@@ -67,6 +78,7 @@ class FakeRepository implements RepositoryAdapter {
 
   async createBranch(name: string): Promise<void> {
     this.createdBranches.push(name);
+    this.currentBranch = name;
   }
 
   async checkoutBranch(_name: string): Promise<void> {}

@@ -185,6 +185,28 @@ function createUseCase(
   workflow: Record<string, 'allow' | 'ask' | 'deny'> = {},
 ) {
   const planner = plannerFactory(returnedPlan);
+  type PlanEntry = { plan: unknown };
+  const planStore: Record<string, PlanEntry> = {};
+  const planPersistence = {
+    savePlan: async (plan: unknown, rootPath: string) => {
+      planStore[rootPath] = { plan };
+    },
+    loadPlan: async (rootPath: string) => {
+      const stored = planStore[rootPath];
+      return stored ? stored.plan : null;
+    },
+  };
+  type StateEntry = { state: unknown };
+  const stateStore: Record<string, StateEntry> = {};
+  const statePersistence = {
+    saveState: async (state: unknown, rootPath: string) => {
+      stateStore[rootPath] = { state };
+    },
+    loadState: async (rootPath: string) => {
+      const stored = stateStore[rootPath];
+      return stored ? stored.state : null;
+    },
+  };
   const useCase = new RunWorkflowUseCase({
     repository,
     configService: new FakeConfigService(workflow),
@@ -200,6 +222,8 @@ function createUseCase(
     plannerFactory: planner.factory,
     approval: { requestApproval: async () => outcome } satisfies ApprovalPort,
     progress: new NullProgressReporter(),
+    planPersistence,
+    statePersistence,
   });
 
   return { useCase, planner };
