@@ -1,9 +1,13 @@
+import fs from 'node:fs/promises';
 import { Command } from 'commander';
 import type { ApprovalPort } from '../../application/ports/approval.port.js';
 import type { ProgressReporter } from '../../application/ports/progress.port.js';
 import { NullProgressReporter } from '../../application/ports/progress.port.js';
 import { RunWorkflowUseCase } from '../../application/use-cases/run-workflow.use-case.js';
 import type { ConfigurationPatch } from '../../domain/config/configuration.js';
+import type { WorkflowPlan } from '../../domain/workflow/workflow-plan.js';
+import type { PlanPersistence } from '../../infrastructure/persistence/plan-persistence.js';
+import type { StatePersistence } from '../../infrastructure/persistence/workflow-state.js';
 import { ExitCode } from '../../shared/exit-codes.js';
 import {
   createConfigService,
@@ -12,10 +16,6 @@ import {
   createRepository,
   createTemplateLoader,
 } from '../composition.js';
-import fs from 'node:fs/promises';
-import { PlanPersistence } from '../../infrastructure/persistence/plan-persistence.js';
-import { StatePersistence } from '../../infrastructure/persistence/workflow-state.js';
-import { WorkflowPlan } from '../../domain/workflow/workflow-plan.js';
 import { PlanView } from '../ui/plan-view.js';
 import { ClackProgressReporter } from '../ui/progress.js';
 import { AutoApproval, ClackApproval, NonInteractiveApproval } from '../ui/prompts.js';
@@ -61,7 +61,10 @@ function createPlanPersistence(): PlanPersistence {
 
 function createStatePersistence(): StatePersistence {
   return {
-    saveState: async (state: { branchCreated: boolean; commitsCompleted: number }, rootPath: string) => {
+    saveState: async (
+      state: { branchCreated: boolean; commitsCompleted: number },
+      rootPath: string,
+    ) => {
       const statePath = `${rootPath}/.gus/workflow-state.json`;
       try {
         await fs.writeFile(statePath, JSON.stringify(state, null, 2));

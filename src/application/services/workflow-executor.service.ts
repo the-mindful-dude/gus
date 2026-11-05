@@ -13,13 +13,13 @@ import type {
   WorkflowOperation,
 } from '../../domain/workflow/workflow-decision.js';
 import type { WorkflowPlan } from '../../domain/workflow/workflow-plan.js';
-import type { ApprovalPort, ApprovalRequest } from '../ports/approval.port.js';
-import type { ProgressReporter } from '../ports/progress.port.js';
-import type { RepositoryAdapter } from '../ports/repository.port.js';
 import type {
   StatePersistence,
   WorkflowExecutionState,
 } from '../../infrastructure/persistence/workflow-state.js';
+import type { ApprovalPort, ApprovalRequest } from '../ports/approval.port.js';
+import type { ProgressReporter } from '../ports/progress.port.js';
+import type { RepositoryAdapter } from '../ports/repository.port.js';
 
 export interface ExecuteWorkflowOptions {
   approval: ApprovalPort;
@@ -35,6 +35,7 @@ const OPERATION_LABELS: Record<WorkflowOperation, string> = {
   splitChanges: 'Splitting changes',
   stage: 'Staging',
   commit: 'Committing',
+  verify: 'Verification',
 };
 
 export class WorkflowExecutor {
@@ -59,9 +60,7 @@ export class WorkflowExecutor {
     // Load execution state for resume support
     let state: { branchCreated: boolean; commitsCompleted: number };
     if (options.statePersistence) {
-const loaded = await options.statePersistence.loadState(
-      options.rootPath,
-    );
+      const loaded = await options.statePersistence.loadState(options.rootPath);
       state = loaded !== null ? loaded : { branchCreated: false, commitsCompleted: 0 };
     } else {
       state = { branchCreated: false, commitsCompleted: 0 };
@@ -93,7 +92,7 @@ const loaded = await options.statePersistence.loadState(
 
     // After branch creation, save state if branch was created
     if (needsBranch && branchResolution.action === 'execute') {
-      await options.statePersistence!.saveState(
+      await options.statePersistence?.saveState(
         { branchCreated: true, commitsCompleted: state.commitsCompleted },
         options.rootPath,
       );
@@ -305,6 +304,7 @@ const loaded = await options.statePersistence.loadState(
           [],
           'verify',
           `Expected branch "${plan.branch.name}" to be active, but current branch is "${currentBranch}".`,
+          undefined,
         );
       }
     }

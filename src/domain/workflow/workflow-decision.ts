@@ -1,4 +1,4 @@
-export type WorkflowOperation = 'createBranch' | 'stage' | 'commit' | 'splitChanges';
+export type WorkflowOperation = 'createBranch' | 'stage' | 'commit' | 'splitChanges' | 'verify';
 
 export type OperationOutcome = 'executed' | 'skipped' | 'failed';
 

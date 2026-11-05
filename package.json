@@ -8,17 +8,8 @@
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "keywords": [
-    "git",
-    "commit",
-    "ai",
-    "cli",
-    "automation",
-    "workflow"
-  ],
+  "files": ["dist"],
+  "keywords": ["git", "commit", "ai", "cli", "automation", "workflow"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Muhammad-Jay/gus.git"

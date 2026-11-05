@@ -9,8 +9,11 @@ import {
 import { PolicyEvaluator } from '../../domain/policy/policy-evaluator.js';
 import type { RepositorySnapshot } from '../../domain/repository/repository-snapshot.js';
 import { hasRepositoryStateChanged } from '../../domain/repository/snapshot-comparison.js';
+import type { CommitTemplate } from '../../domain/templates/commit-template.js';
 import type { WorkflowDecision } from '../../domain/workflow/workflow-decision.js';
 import type { WorkflowPlan } from '../../domain/workflow/workflow-plan.js';
+import type { PlanPersistence } from '../../infrastructure/persistence/plan-persistence.js';
+import type { StatePersistence } from '../../infrastructure/persistence/workflow-state.js';
 import { toErrorMessage } from '../../shared/errors.js';
 import type { AiPlannerFactory } from '../ports/ai-planner.port.js';
 import type { ApprovalPort } from '../ports/approval.port.js';
@@ -19,11 +22,8 @@ import type { InstructionLoader } from '../ports/instruction-loader.port.js';
 import type { ProgressReporter } from '../ports/progress.port.js';
 import type { RepositoryAdapter } from '../ports/repository.port.js';
 import type { TemplateLoaderPort } from '../ports/template-loader.port.js';
-import type { CommitTemplate } from '../../domain/templates/commit-template.js';
 import { WorkflowExecutor } from '../services/workflow-executor.service.js';
 import { WorkflowValidator } from '../services/workflow-validator.service.js';
-import type { PlanPersistence } from '../../infrastructure/persistence/plan-persistence.js';
-import type { StatePersistence } from '../../infrastructure/persistence/workflow-state.js';
 
 export type WorkflowStatus = 'completed' | 'failed' | 'no-changes' | 'planned';
 
@@ -69,8 +69,15 @@ export class RunWorkflowUseCase {
   }
 
   private async run(options: RunWorkflowOptions): Promise<WorkflowRunResult> {
-    const { repository, configService, instructionLoader, templateLoader, plannerFactory, planPersistence, statePersistence } =
-      this.dependencies;
+    const {
+      repository,
+      configService,
+      instructionLoader,
+      templateLoader,
+      plannerFactory,
+      planPersistence,
+      statePersistence,
+    } = this.dependencies;
     const { progress } = this.dependencies;
     const { resume = false, dryRun } = options;
 
@@ -94,7 +101,9 @@ export class RunWorkflowUseCase {
       progress.emit({ type: 'plan.loading' });
       const savedPlan = await planPersistence.loadPlan(location.rootPath);
       if (savedPlan === null) {
-        throw new Error(`No saved plan found in ${location.rootPath}/.gus/workflow-plan.json. Run gus first to create a plan.`);
+        throw new Error(
+          `No saved plan found in ${location.rootPath}/.gus/workflow-plan.json. Run gus first to create a plan.`,
+        );
       }
 
       // Check for new changes since plan was saved
@@ -104,11 +113,12 @@ export class RunWorkflowUseCase {
           assignedFiles.add(file);
         }
       }
-      const newChanges = currentSnapshot.changes.filter((change) => !assignedFiles.has(change.path));
+      const newChanges = currentSnapshot.changes.filter(
+        (change) => !assignedFiles.has(change.path),
+      );
       if (newChanges.length > 0) {
         throw new Error(
-          `Repository has changed since the plan was saved. ${newChanges.length} new change(s) detected: ${newChanges.map((c) => c.path).join(', ')}. ` +
-            'Please commit or stash these changes, or run gus without --resume.',
+          `Repository has changed since the plan was saved. ${newChanges.length} new change(s) detected: ${newChanges.map((c) => c.path).join(', ')}. Please commit or stash these changes, or run gus without --resume.`,
         );
       }
 
